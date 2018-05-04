@@ -153,6 +153,7 @@ node_rank = comm.Get_size()
 
 """ set air system parameters at master node """
 size = 100 # number of grids for the air transportation system
+pilots = [] # list of pilots
 
 if node_rank == 0:
     airsys = airenv(size,size)
