@@ -156,10 +156,11 @@ print(node_size)
 """ set air system parameters at master node """
 size = 100 # number of grids for the air transportation system
 pilots = [] # list of pilots
+nplane = 90 # number of planes
 
 if node_rank == 0:
     airsys = airenv(size,size)
-    nplane = 90 # number of planes
+    
     nnofly = 80 # number of no-fly cell
     pilots = [] # list of pilots
     depart_x = np.random.choice(size,nplane,replace=False) # departure x location
