@@ -181,7 +181,7 @@ sub_len = size // node_size + 1 # number of planes for each node
 
 
 if node_rank != 0:
-    airsys = None
+    # airsys = None
     comm.bcast(pilots,root=0)
     
 while sys_check(pilots).sum() < nplane:
@@ -189,7 +189,7 @@ while sys_check(pilots).sum() < nplane:
     if node_rank == 0:
         enroute_plane = list(compress(pilots,1-sys_check(pilots))) # get all en route planes
     else:
-        enroute_plane = None
+        # enroute_plane = None
         comm.bcast(airsys,root=0) # broadcast updated air system
         comm.bcast(enroute_plane,root=0)
     start_ind = node_rank*sub_len
