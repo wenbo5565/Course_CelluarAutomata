@@ -176,9 +176,11 @@ if node_rank == 0:
 
 sub_len = size // node_size + 1 # number of planes for each node
 
+
 if node_rank != 0:
     airsys = None
-
+    comm.Bcast(pilots,root=0)
+    
 while sys_check(pilots).sum() < nplane:
     """ true if there is at least one plane en route """
     if node_rank == 0:
