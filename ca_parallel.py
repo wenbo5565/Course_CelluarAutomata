@@ -181,13 +181,14 @@ sub_len = size // node_size + 1 # number of planes for each node
 
 
 if node_rank != 0:
-    # airsys = None
+    airsys = None
     comm.bcast(pilots,root=0)
     
 while sys_check(pilots).sum() < nplane:
     """ true if there is at least one plane en route """
     if node_rank == 0:
         enroute_plane = list(compress(pilots,1-sys_check(pilots))) # get all en route planes
+        print ('length is enroute_plane is',len(enroute_plane))
     else:
         # enroute_plane = None
         comm.bcast(airsys,root=0) # broadcast updated air system
