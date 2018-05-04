@@ -148,8 +148,8 @@ def sys_check(airplanes):
     return np.array(status)
             
 comm = MPI.COMM_WORLD
-node_size = comm.Get_rank()
-node_rank = comm.Get_size()
+node_size = comm.Get_size()
+node_rank = comm.Get_rank()
 
 print(node_size)
 
