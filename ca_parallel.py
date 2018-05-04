@@ -195,7 +195,7 @@ while sys_check(pilots).sum() < nplane:
     end_ind = node_rank*sub_len+sub_len    
     sub_plane=enroute_plane[start_ind:end_ind] #
     for each in sub_plane:
-         each.plan() # airgrid
+         each.plan(airsys) # airgrid
          loc_info=each.move() # move and get location information
          airsys.update(loc_info[0][0],loc_info[0][1]) # update current cell from occupied to vacant
          airsys.update(loc_info[1][0],loc_info[1][1]) # update next cell from vacant to occupied
