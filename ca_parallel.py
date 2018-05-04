@@ -112,14 +112,7 @@ class airplane():
             return 1
         else:
             return 0
-    
-# =============================================================================
-#     def get_loc(self):
-#         """ output current loc and next loc """
-#         
-# =============================================================================
-    
-        
+       
 class airenv():
     """
         an air-transportation environment (2d grid) comprising of two-dimesional grid
@@ -159,8 +152,9 @@ node_size = comm.Get_rank()
 node_rank = comm.Get_size()
 
 """ set air system parameters at master node """
+size = 100 # number of grids for the air transportation system
+
 if node_rank == 0:
-    size = 100 # number of grids for the air transportation system
     airsys = airenv(size,size)
     nplane = 90 # number of planes
     nnofly = 80 # number of no-fly cell
@@ -188,37 +182,26 @@ while sys_check(pilots).sum() < nplane:
     """ true if there is at least one plane en route """
     if node_rank == 0:
         enroute_plane = list(compress(pilots,1-sys_check(pilots))) # get all en route planes
-         # enroute_plane.sort(key=lambda x: x.rank,reverse=False) # order plane by rank
-     
-#         """ divide air-system grid into sub-grids """
-#         # sub_len = size // node_size + 1 # how many rows each node work on
-         # airgrid = np.copy(airsys)
+
     else:
-#         # sub_len = None
         enroute_plane = None
-#     comm.Bcast(enroute_plane,root=0) # broadcast enroute_plane
         comm.Bcast(airsys,root=0) # broadcast updated air system
         comm.Bcast(enroute_plane,root=0)
-#     # array index [node_rank*sub_len:node_rank*sub_len+sub_len,size]
         start_ind = node_rank*sub_len
-        end_ind = node_rank*sub_len+sub_len
-#     
-        sub_plane=enroute_plane[start_ind:end_ind] # 3 rows from upper neighbor + working rows + 3 rows from lower neighbor
-#    subplane = [] # enroute plane in subgrid
-#    for each in enroute_plane:
-#        if each.loc[0] >= start_ind and each.loc[0] < end_ind+3:
-#            subplane.append(each)
+        end_ind = node_rank*sub_len+sub_len    
+        sub_plane=enroute_plane[start_ind:end_ind] # 
     for each in sub_plane:
-#         """ en_route plane continus to make a move """
          each.plan() # airgrid
          loc_info=each.move() # move and get location information
          airsys.update(loc_info[0][0],loc_info[0][1]) # update current cell from occupied to vacant
          airsys.update(loc_info[1][0],loc_info[1][1]) # update next cell from vacant to occupied
          comm.Bcast(airsys,root=node_rank) # broadcast updated airgrid
-     
     im = plt.imshow(airsys.grid,animated=True)
     ims.append([im])
- 
+
+#===========================
+# animate the result
+#===========================
 print(len(ims))
 fig=plt.figure()
 ani = animation.ArtistAnimation(fig,ims, interval=500, blit=True,repeat_delay=1000)
