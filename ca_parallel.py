@@ -151,6 +151,8 @@ comm = MPI.COMM_WORLD
 node_size = comm.Get_rank()
 node_rank = comm.Get_size()
 
+print(node_size)
+
 """ set air system parameters at master node """
 size = 100 # number of grids for the air transportation system
 pilots = [] # list of pilots
