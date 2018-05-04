@@ -181,7 +181,7 @@ sub_len = size // node_size + 1 # number of planes for each node
 
 if node_rank != 0:
     airsys = None
-    comm.Bcast(pilots,root=0)
+    comm.bcast(pilots,root=0)
     
 while sys_check(pilots).sum() < nplane:
     """ true if there is at least one plane en route """
@@ -190,8 +190,8 @@ while sys_check(pilots).sum() < nplane:
 
     else:
         enroute_plane = None
-        comm.Bcast(airsys,root=0) # broadcast updated air system
-        comm.Bcast(enroute_plane,root=0)
+        comm.bcast(airsys,root=0) # broadcast updated air system
+        comm.bcast(enroute_plane,root=0)
         start_ind = node_rank*sub_len
         end_ind = node_rank*sub_len+sub_len    
         sub_plane=enroute_plane[start_ind:end_ind] # 
@@ -200,7 +200,7 @@ while sys_check(pilots).sum() < nplane:
          loc_info=each.move() # move and get location information
          airsys.update(loc_info[0][0],loc_info[0][1]) # update current cell from occupied to vacant
          airsys.update(loc_info[1][0],loc_info[1][1]) # update next cell from vacant to occupied
-         comm.Bcast(airsys,root=node_rank) # broadcast updated airgrid
+         comm.bcast(airsys,root=node_rank) # broadcast updated airgrid
     im = plt.imshow(airsys.grid,animated=True)
     ims.append([im])
 
