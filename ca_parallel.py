@@ -187,14 +187,13 @@ while sys_check(pilots).sum() < nplane:
     """ true if there is at least one plane en route """
     if node_rank == 0:
         enroute_plane = list(compress(pilots,1-sys_check(pilots))) # get all en route planes
-
     else:
         enroute_plane = None
         comm.bcast(airsys,root=0) # broadcast updated air system
         comm.bcast(enroute_plane,root=0)
-        start_ind = node_rank*sub_len
-        end_ind = node_rank*sub_len+sub_len    
-        sub_plane=enroute_plane[start_ind:end_ind] # 
+    start_ind = node_rank*sub_len
+    end_ind = node_rank*sub_len+sub_len    
+    sub_plane=enroute_plane[start_ind:end_ind] #
     for each in sub_plane:
          each.plan() # airgrid
          loc_info=each.move() # move and get location information
