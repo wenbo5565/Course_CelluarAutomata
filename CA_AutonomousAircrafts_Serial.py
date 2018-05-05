@@ -1,5 +1,5 @@
 # This is the file for final project of HPC course
-# In this file, I implement parallel version with mpi4py of selected paper
+# In this file, I implement serial version of selected paper
 # Celluar Automata Modeling of En Route and Arrival Self-Spacing for Autonomous Aircrafts
 # written by Charles Kim
 
@@ -7,7 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from itertools import compress
-from mpi4py import MPI
+
+# =======================================================
+#                 define class and function
+# =======================================================
 
 class airplane():
     """
@@ -94,7 +97,7 @@ class airplane():
         """ no valid cell avaiable. hold at the current cell """
         self.x = 0
         self.y = 0
-        # print("sub-optimal is invalid, must hold")
+        print("sub-optimal is invalid, must hold")
         
                 
             
@@ -112,7 +115,14 @@ class airplane():
             return 1
         else:
             return 0
-       
+    
+# =============================================================================
+#     def get_loc(self):
+#         """ output current loc and next loc """
+#         
+# =============================================================================
+    
+        
 class airenv():
     """
         an air-transportation environment (2d grid) comprising of two-dimesional grid
@@ -147,33 +157,73 @@ def sys_check(airplanes):
         status.append(airplane.status_check())
     return np.array(status)
             
-comm = MPI.COMM_WORLD
-node_size = comm.Get_size()
-node_rank = comm.Get_rank()
 
-print(node_size)
-
-""" set air system parameters at master node """
-size = 100 # number of grids for the air transportation system
-pilots = [] # list of pilots
-nplane = 90 # number of planes
-
-if node_rank == 0:
-    airsys = airenv(size,size)
+        
+# =============================================================================
+# class airsys():
+#     """
+#         an air-transportation system comprising of airplane and air-envionment
+#     """
+#     
+#     def __init__(self,nplane,nrow,ncol):
+#         """ constructor 
+#             
+#         parameters
+#             nrow: number of rows
+#             ncol: number of cols
+#             nplane: number of planes
+#         """
+#         self.nplane = nplane 
+#         self.pilots = []
+#         self.env = airenv(nrow,ncol)
+# =============================================================================
+     
     
-    nnofly = 80 # number of no-fly cell
-    # pilots = [] # list of pilots
-    depart_x = np.random.choice(size,nplane,replace=False) # departure x location
-    depart_y = np.random.choice(size,nplane,replace=False) # departure y location
-    dest_x = np.random.choice(size,nplane,replace=False) # dest x location
-    dest_y = np.random.choice(size,nplane,replace=False) # dest y location
+        
+        
+# ========================================================
+#               implement serial version
+# ========================================================
+""" set air system parameters """
+size = 100 # number of grids for the air transportation system
+airsys = airenv(size,size)
+nplane = 90 # number of planes
+nnofly = 80 # number of no-fly cell
+pilots = [] # list of pilots
+depart_x = np.random.choice(size,nplane,replace=False) # departure x location
+depart_y = np.random.choice(size,nplane,replace=False) # departure y location
+dest_x = np.random.choice(size,nplane,replace=False) # dest x location
+dest_y = np.random.choice(size,nplane,replace=False) # dest y location
 
-    """ create airplanes based on parameters """
-    for i in range(nplane):
-        pilots.append(airplane(i,np.array([depart_x[i],depart_y[i]]),np.array([dest_x[i],dest_y[i]])))
-        airsys.update(depart_x[i],depart_y[i]) # departure cell occupied
-    airsys.no_fly(nnofly) # add 5 no-fly cell
-    plt.imshow(airsys.grid)
-    """ update air system """
-    ims = [] # list to save image for animation
+""" create airplanes based on parameters """
+for i in range(nplane):
+    pilots.append(airplane(i,np.array([depart_x[i],depart_y[i]]),np.array([dest_x[i],dest_y[i]])))
+    airsys.update(depart_x[i],depart_y[i]) # departure cell occupied
+airsys.no_fly(nnofly) # add 5 no-fly cell
+plt.imshow(airsys.grid)
+""" update air system """
+
+ims = []
+while sys_check(pilots).sum() < nplane:
+    """ true if there is at least one plane en route """
+    enroute_plane = list(compress(pilots,1-sys_check(pilots))) # get all en route planes
+    enroute_plane.sort(key=lambda x: x.rank,reverse=False) # order plane by rank
+    for each in enroute_plane:
+        """ en_route plane continus to make a move """
+        each.plan(airsys)
+        loc_info=each.move() # move and get location information
+        airsys.update(loc_info[0][0],loc_info[0][1]) # update current cell from occupied to vacant
+        airsys.update(loc_info[1][0],loc_info[1][1]) # update next cell from vacant to occupied
+    # plt.title("number of en-route flight is {0}".format()))
+    im = plt.imshow(airsys.grid,animated=True)
+    ims.append([im])
+ 
+len(ims)
+fig=plt.figure()
+ani = animation.ArtistAnimation(fig,ims, interval=500, blit=True,repeat_delay=1000)
+plt.show()
+    
+    
+        
+        
 
