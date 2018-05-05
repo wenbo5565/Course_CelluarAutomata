@@ -190,7 +190,7 @@ while sys_check(pilots).sum() < nplane:
         enroute_plane = list(compress(pilots,1-sys_check(pilots))) # get all en route planes
         print ('length is enroute_plane is',len(enroute_plane))
     else:
-        # enroute_plane = None
+        enroute_plane = []
         comm.bcast(airsys,root=0) # broadcast updated air system
         comm.bcast(enroute_plane,root=0)
     start_ind = node_rank*sub_len
