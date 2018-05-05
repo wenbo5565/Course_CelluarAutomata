@@ -210,11 +210,11 @@ while sys_check(pilots).sum() < nplane:
 #===========================
 # animate the result
 #===========================
-    if node_rank == 0:
-        print(len(ims))
-        fig=plt.figure()
-        ani = animation.ArtistAnimation(fig,ims, interval=500, blit=True,repeat_delay=1000)
-        plt.show()
+if node_rank == 0:
+    print(len(ims))
+    fig=plt.figure()
+    ani = animation.ArtistAnimation(fig,ims, interval=500, blit=True,repeat_delay=1000)
+    plt.show()
 
     
         
