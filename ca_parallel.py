@@ -202,8 +202,10 @@ while sys_check(pilots).sum() < nplane:
          airsys.update(loc_info[0][0],loc_info[0][1]) # update current cell from occupied to vacant
          airsys.update(loc_info[1][0],loc_info[1][1]) # update next cell from vacant to occupied
          comm.bcast(airsys,root=node_rank) # broadcast updated airgrid
-    im = plt.imshow(airsys.grid,animated=True)
-    ims.append([im])
+    
+    if node_rank == 0:
+        im = plt.imshow(airsys.grid,animated=True)
+        ims.append([im])
 
 #===========================
 # animate the result
