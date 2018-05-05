@@ -3,11 +3,16 @@
 # Celluar Automata Modeling of En Route and Arrival Self-Spacing for Autonomous Aircrafts
 # written by Charles Kim
 
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from itertools import compress
 from mpi4py import MPI
+
+# =======================================================
+#                 define class and function
+# =======================================================
 
 class airplane():
     """
@@ -94,7 +99,7 @@ class airplane():
         """ no valid cell avaiable. hold at the current cell """
         self.x = 0
         self.y = 0
-        # print("sub-optimal is invalid, must hold")
+        
         
                 
             
@@ -146,23 +151,35 @@ def sys_check(airplanes):
     for airplane in airplanes:
         status.append(airplane.status_check())
     return np.array(status)
-            
+
+# ========================================================================
+#           Important Note for Parallel Version
+# ========================================================================
+# 1. In the serial version, each plane in the air system is assigned
+#    a rank. Plane with higher rank will have priority on move/request
+#    than one with lower rank.
+#
+# 2. In the parallel version, plane has no rank. Their request is 
+#    instead servered as first-come-first-serve basis because the "ranking"
+#    version is sequential which makes parallel almost impossible
+# ========================================================================
+          
+
+
+
 comm = MPI.COMM_WORLD
 node_size = comm.Get_size()
 node_rank = comm.Get_rank()
 
-print(node_size)
-
-""" set air system parameters at master node """
+""" set air system parameters """
 size = 100 # number of grids for the air transportation system
 pilots = [] # list of pilots
 nplane = 90 # number of planes
 
+""" create an airsystem at master node """
 if node_rank == 0:
     airsys = airenv(size,size)
-    
     nnofly = 80 # number of no-fly cell
-    # pilots = [] # list of pilots
     depart_x = np.random.choice(size,nplane,replace=False) # departure x location
     depart_y = np.random.choice(size,nplane,replace=False) # departure y location
     dest_x = np.random.choice(size,nplane,replace=False) # dest x location
@@ -172,20 +189,24 @@ if node_rank == 0:
     for i in range(nplane):
         pilots.append(airplane(i,np.array([depart_x[i],depart_y[i]]),np.array([dest_x[i],dest_y[i]])))
         airsys.update(depart_x[i],depart_y[i]) # departure cell occupied
-    airsys.no_fly(nnofly) # add 5 no-fly cell
+    airsys.no_fly(nnofly) # add no-fly cell
     plt.imshow(airsys.grid)
-    """ update air system """
     ims = [] # list to save image for animation
 
+""" calculate how many planes each node will work on """
 sub_len = size // node_size + 1 # number of planes for each node
 
-
+""" broadcast airplane info to workers """
 if node_rank != 0:
     airsys = None
     comm.bcast(pilots,root=0)
     
+    
+""" air system starts to work """
 while sys_check(pilots).sum() < nplane:
     """ true if there is at least one plane en route """
+    
+    """ master node check how many planes are still en-route """
     if node_rank == 0:
         enroute_plane = list(compress(pilots,1-sys_check(pilots))) # get all en route planes
         print ('length is enroute_plane is',len(enroute_plane))
@@ -193,16 +214,18 @@ while sys_check(pilots).sum() < nplane:
         enroute_plane = []
         comm.bcast(airsys,root=0) # broadcast updated air system
         comm.bcast(enroute_plane,root=0)
+    """ distribute en-route plane to worker """
     start_ind = node_rank*sub_len
     end_ind = node_rank*sub_len+sub_len    
     sub_plane=enroute_plane[start_ind:end_ind] #
     for each in sub_plane:
+         """ at each worker, make a move and update the entire airsys by bcast """
          each.plan(airsys) # airgrid
          loc_info=each.move() # move and get location information
          airsys.update(loc_info[0][0],loc_info[0][1]) # update current cell from occupied to vacant
          airsys.update(loc_info[1][0],loc_info[1][1]) # update next cell from vacant to occupied
          comm.bcast(airsys,root=node_rank) # broadcast updated airgrid
-    
+    """ save image for animation later """
     if node_rank == 0:
         im = plt.imshow(airsys.grid,animated=True)
         ims.append([im])
@@ -210,11 +233,11 @@ while sys_check(pilots).sum() < nplane:
 #===========================
 # animate the result
 #===========================
-    if node_rank == 0:
-        print(len(ims))
-        fig=plt.figure()
-        ani = animation.ArtistAnimation(fig,ims, interval=500, blit=True,repeat_delay=1000)
-        plt.show()
+if node_rank == 0:
+    print(len(ims))
+    fig=plt.figure()
+    ani = animation.ArtistAnimation(fig,ims, interval=500, blit=True,repeat_delay=1000)
+    plt.show()
 
     
         
