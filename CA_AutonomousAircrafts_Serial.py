@@ -187,8 +187,8 @@ def sys_check(airplanes):
 """ set air system parameters """
 size = 100 # number of grids for the air transportation system
 airsys = airenv(size,size)
-nplane = 90 # number of planes
-nnofly = 80 # number of no-fly cell
+nplane = 60 # number of planes
+nnofly = 20 # number of no-fly cell
 pilots = [] # list of pilots
 depart_x = np.random.choice(size,nplane,replace=False) # departure x location
 depart_y = np.random.choice(size,nplane,replace=False) # departure y location
