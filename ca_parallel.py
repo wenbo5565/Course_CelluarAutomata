@@ -162,7 +162,7 @@ if node_rank == 0:
     airsys = airenv(size,size)
     
     nnofly = 80 # number of no-fly cell
-    pilots = [] # list of pilots
+    # pilots = [] # list of pilots
     depart_x = np.random.choice(size,nplane,replace=False) # departure x location
     depart_y = np.random.choice(size,nplane,replace=False) # departure y location
     dest_x = np.random.choice(size,nplane,replace=False) # dest x location
@@ -213,8 +213,8 @@ while sys_check(pilots).sum() < nplane:
 print(len(ims))
 fig=plt.figure()
 ani = animation.ArtistAnimation(fig,ims, interval=500, blit=True,repeat_delay=1000)
+plt.show()
 
-    
     
         
         
