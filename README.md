@@ -3,9 +3,9 @@
 This repository includes my python code to implement Celluar Automata model for air traffic control. 
 The goal of this work is not to study the model or paper. Instead the implementation is part of the requirement for course High Performance Computing and Parallel computing.
 
-*
+Paper
 
-The paper was written by Charles Kim and it can be accessed at [Celluar Automata Modeling of Automous Aircrafts](http://www.mwftr.com/CA/ATCA2005_18-3.pdf)
+* The paper was written by Charles Kim and it can be accessed at [Celluar Automata Modeling of Automous Aircrafts](http://www.mwftr.com/CA/ATCA2005_18-3.pdf)
 
 Code
 
