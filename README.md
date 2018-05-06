@@ -9,8 +9,8 @@ Paper
 
 Code
 
-* [Serialized version in python](https://github.com/wenbo5565/Course_CelluarAutomata/blob/master/CA_AutonomousAircrafts_Serial.py)
-* [Parallel version in python](https://github.com/wenbo5565/Course_CelluarAutomata/blob/master/ca_parallel.py) - The parallel version is implemented with mpi4py in python and has been tested with 4 cores.
+* [Serial version in python](https://github.com/wenbo5565/Course_CelluarAutomata/blob/master/CA_AutonomousAircrafts_Serial.py) The serial version in Python
+* [Parallel version in python](https://github.com/wenbo5565/Course_CelluarAutomata/blob/master/ca_parallel.py) - The parallel version (MPI) is implemented with mpi4py in Python and has been tested with 4 cores.
 * path on DSRL is at /home/wenboma/Course_CelluarAutomata
 
 Note
